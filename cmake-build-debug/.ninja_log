@@ -1,0 +1,10 @@
+# ninja log v6
+1	219	7482837074227536	build.ninja	be60eaaea8979d13
+14	506	7482446365137515	CMakeFiles/physics.dir/Classes/GameFrame.cpp.obj	e91427792fc0f264
+11	571	7481329531200164	CMakeFiles/physics.dir/Classes/Walls.cpp.obj	b40aa385c2c2885
+7	86	7481137851935733	CMakeFiles/physics.dir/main.cpp.obj	ffa64fc6ca5b5371
+37	100	7481137852242980	CMakeFiles/physics.dir/Classes/Obstacle.cpp.obj	e4d08f87844c328d
+8	551	7482446365068989	CMakeFiles/physics.dir/main2.cpp.obj	8180c1a5b1e4b429
+5	567	7482392507882645	CMakeFiles/physics.dir/Classes/Ball.cpp.obj	9bfcadbf9d8cb2d0
+551	649	7482446370504381	physics.exe	e4f6ba550b3a37ef
+4	358	7482434921278473	CMakeFiles/physics.dir/Classes/LineObstacle.cpp.obj	49c9247c50b8ae01

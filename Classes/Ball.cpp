@@ -104,13 +104,12 @@ void Ball::drawProjectionLine() {
         int dy = centerY - dragEndY;
 
         double distance = std::sqrt(dx * dx + dy * dy);
-        if (distance == 0) return; // Avoid division by zero
 
-        // Calculate number of dashes based on distance
-        const int dashLength = 10; // Length of each dash
-        const int gapLength = 5;   // Length of gap between dashes
-        const int dashInterval = dashLength + gapLength;
-        const int maxDashes = 5;  // Maximum number of dashes to draw
+
+
+        const int dashLength = 10;
+        const int dashInterval =15;
+        const int maxDashes = 5;
 
         int numDashes = std::min(static_cast<int>(distance / dashInterval), maxDashes);
 
@@ -135,16 +134,8 @@ SDL_Rect Ball::getBounds() const {
 }
 
 void Ball::reverseVelocity(int side) {
-    SDL_Log("running revvelo %d", side);
-    switch (side) {
-        case 0:
-        case 1:
-            velocityY *= -1;
-            SDL_Log("TOP WALL HIT, Y inverted");
-            break;
-        case 2:
-        case 3:
-            velocityX *= -1;
-            break;
+    switch (side%2) {
+        case 0:velocityY *= -1;break;
+        case 1:velocityX *= -1;break;
     }
 }

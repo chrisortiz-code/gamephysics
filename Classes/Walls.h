@@ -25,11 +25,11 @@ public:
    void draw() const;
    SDL_Rect extraWall;
    int exitSide;
-
+   SDL_Rect exitHole;
 private:
    SDL_Renderer* renderer;
    std::vector<SDL_Rect> walls;
-   SDL_Rect exitHole;
+
    int height;
    int length;
    float exitX;

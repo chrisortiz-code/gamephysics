@@ -21,8 +21,7 @@ private:
     int centerY;
     SDL_Renderer* renderer;
     static const int radius = 10;
-    static const int maxVelocity = 6;       // Maximum velocity
-    static const int projectionLineLength = 100;
+    static const int maxVelocity = 6;
 
     int dragStartX;
     int dragStartY;

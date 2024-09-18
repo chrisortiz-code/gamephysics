@@ -18,7 +18,8 @@ private:
     bool gameOver;
     std::vector<LineObstacle> obstacles;
     std::vector<SDL_Rect> walls;
-
+    void checkCollisions();
+    bool isBallOutside() const;
 public:
     GameFrame(int level, SDL_Window* window, SDL_Renderer* renderer);
     ~GameFrame();
@@ -28,9 +29,6 @@ public:
     void render();
     bool isGameOver() const { return gameOver; }
 
-private:
-    void checkCollisions();
-    bool isBallOutside() const;
 };
 
 #endif // GAMEFRAME_H

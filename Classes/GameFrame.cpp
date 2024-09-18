@@ -2,7 +2,8 @@
 #include "Walls.h"
 #include "Ball.h"
 #include "LineObstacle.h"
-
+#include <algorithm>
+#include <initializer_list>
 
 enum class CollisionSide;
 
@@ -14,7 +15,6 @@ GameFrame::GameFrame(int level, SDL_Window *window, SDL_Renderer *renderer)
         case 0:
             width = 800;
             height = 600;
-        // Load obstacles for level 0
             obstacles.push_back(LineObstacle(renderer, 0.5f, 0, 100, 150)); // Horizontal obstacle
             obstacles.push_back(LineObstacle(renderer, 0.3f, 1, 300, 200)); // Vertical obstacle
             break;
@@ -22,7 +22,6 @@ GameFrame::GameFrame(int level, SDL_Window *window, SDL_Renderer *renderer)
         case 1:
             width = 1024;
             height = 768;
-        // Load obstacles for level 1
             obstacles.push_back(LineObstacle(renderer, 0.6f, 0, 200, 250)); // Horizontal obstacle
             obstacles.push_back(LineObstacle(renderer, 0.4f, 1, 400, 300)); // Vertical obstacle
             break;
@@ -30,7 +29,6 @@ GameFrame::GameFrame(int level, SDL_Window *window, SDL_Renderer *renderer)
         case 2:
             width = 1280;
             height = 720;
-        // Load obstacles for level 2
             obstacles.push_back(LineObstacle(renderer, 0.7f, 0, 250, 350)); // Horizontal obstacle
             obstacles.push_back(LineObstacle(renderer, 0.5f, 1, 500, 400)); // Vertical obstacle
             break;
@@ -38,7 +36,6 @@ GameFrame::GameFrame(int level, SDL_Window *window, SDL_Renderer *renderer)
         case 3:
             width = 1366;
             height = 768;
-        // Load obstacles for level 3
             obstacles.push_back(LineObstacle(renderer, 0.8f, 0, 300, 400)); // Horizontal obstacle
             obstacles.push_back(LineObstacle(renderer, 0.6f, 1, 600, 450)); // Vertical obstacle
             break;
@@ -46,7 +43,6 @@ GameFrame::GameFrame(int level, SDL_Window *window, SDL_Renderer *renderer)
         case 4:
             width = 1920;
             height = 1080;
-        // Load obstacles for level 4
             obstacles.push_back(LineObstacle(renderer, 0.9f, 0, 350, 500)); // Horizontal obstacle
             obstacles.push_back(LineObstacle(renderer, 0.7f, 1, 700, 550)); // Vertical obstacle
             break;
@@ -54,7 +50,6 @@ GameFrame::GameFrame(int level, SDL_Window *window, SDL_Renderer *renderer)
         default:
             width = 800;
             height = 600;
-        // Load default obstacles
             obstacles.push_back(LineObstacle(renderer, 0.5f, 0, 100, 150)); // Horizontal obstacle
             obstacles.push_back(LineObstacle(renderer, 0.3f, 1, 300, 200)); // Vertical obstacle
             break;
@@ -63,21 +58,6 @@ GameFrame::GameFrame(int level, SDL_Window *window, SDL_Renderer *renderer)
     walls = gameWalls.getBoundsArray(); // Load walls as an array of SDL_Rects
 }
 
-int GameFrame::detectCollisionSide(SDL_Rect &ball,SDL_Rect &obstacle) {
-    int ballCenterX = ball.x + ball.w / 2;
-    int ballCenterY = ball.y + ball.h / 2;
-
-    int obstacleCenterX = obstacle.x + obstacle.w / 2;
-    int obstacleCenterY = obstacle.y + obstacle.h / 2;
-
-    int dx = obstacleCenterX - ballCenterX;
-    int dy = obstacleCenterY - ballCenterY;
-
-    if (std::abs(dx) > std::abs(dy)) {
-        return dx > 0 ? 3 : 4;
-    }
-    return dy > 0 ? 1 : 2;
-}
 
 
 GameFrame::~GameFrame() {
@@ -129,6 +109,18 @@ void GameFrame::render() {
 
         SDL_RenderPresent(renderer);
     }
+}int GameFrame::detectCollisionSide(SDL_Rect &ball, SDL_Rect &obstacle) {
+    int leftPen = ball.x + ball.w - obstacle.x;
+    int rightPen = obstacle.x + obstacle.w - ball.x;
+    int topPen = ball.y + ball.h - obstacle.y;
+    int bottomPen = obstacle.y + obstacle.h - ball.y;
+
+    int minPen = std::min({leftPen, rightPen, topPen, bottomPen});
+
+    if (minPen == topPen) return 0;
+    if (minPen == rightPen) return 1;
+    if (minPen == bottomPen) return 2;
+    return 3;
 }
 
 void GameFrame::checkCollisions() {
@@ -138,21 +130,31 @@ void GameFrame::checkCollisions() {
     for (size_t i = 0; i < wallBounds.size(); i++) {
         SDL_Rect currentWall = wallBounds[i];
         if (SDL_HasIntersection(&ballBounds, &currentWall)) {
-             int side = detectCollisionSide(ballBounds,currentWall);
-            SDL_Log("Collision detected with wall %zu", i);
-            SDL_Log("Side %zu",side);
-            ball.reverseVelocity(i);
+            int side = detectCollisionSide(ballBounds,currentWall);
+
+
+            //used to combat ball shooting in opposite direction when hitting wall, while already in the exit
+            if(SDL_HasIntersection(&ballBounds,&gameWalls.exitHole)) {
+                ball.reverseVelocity(gameWalls.exitSide-1);
+            }else {
+                ball.reverseVelocity(side);
+            }
+        }
+    }
+    for (size_t i = 0; i < obstacles.size(); i++) {
+        SDL_Rect currentObstacle = obstacles[i].getBounds();
+        if (SDL_HasIntersection(&ballBounds, &currentObstacle)) {
+            int side = detectCollisionSide(ballBounds, currentObstacle);
+            ball.reverseVelocity(side);
         }
     }
 
     if (SDL_HasIntersection(&ballBounds, &gameWalls.extraWall)) {
-        switch (gameWalls.exitSide) {
+        switch (gameWalls.exitSide%2) {
             case 0:
-            case 1:
-                ball.reverseVelocity(0);
+                ball.reverseVelocity(gameWalls.exitSide);
                 break;
-            case 2:
-            case 3:
+            case 1:
                 ball.reverseVelocity(2);
                 break;
         }
